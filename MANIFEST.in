@@ -1,0 +1,2 @@
+include OSM2AT/Functions/*
+include OSM2AT/tags.txt

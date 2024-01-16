@@ -1,0 +1,10 @@
+numpy
+pandas
+osmnx
+shapely
+scikit-learn
+torch
+tqdm
+scipy
+gower
+kmedoids
