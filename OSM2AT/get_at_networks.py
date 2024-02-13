@@ -358,7 +358,9 @@ def measure_LTS_from_network(G,impute_method,mlp_train_params,lts_method,self_le
         edge_attributes['bicycle'] = 'NAN'
     if 'motor_vehicle' not in edge_attributes.columns:
         edge_attributes['motor_vehicle'] = 'NAN'
-                    
+    if 'service' not in edge_attributes.columns:
+        edge_attributes['service'] = 'NAN'
+        
     #Compute Edge-Level LTS 
     if lts_method == 'ottawa':
         print('Calculating LTS using Ottawa Advocacy Group method')
