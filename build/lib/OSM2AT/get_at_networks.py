@@ -30,7 +30,7 @@ with open (tag_file, 'r') as f:
 utw = ox.settings.useful_tags_way + tags_to_add
 ox.config(use_cache=True, log_console=True, useful_tags_way=utw)
 
-def get_cycle_network(bounding_box,impute_method,mlp_train_params,lts_method,self_learn_k):
+def get_cycle_network(bounding_box,impute_method,mlp_train_params,lts_method,self_learn_k,pull_method,place):
     
     #Define weight matrices for different users
     weights_beginner = {0:0.1,1:0.2,2:2,3:4,4:10}
@@ -44,7 +44,10 @@ def get_cycle_network(bounding_box,impute_method,mlp_train_params,lts_method,sel
     }
     
     #Get data from OSMNX
-    G = ox.graph_from_bbox(bounding_box[3],bounding_box[1], bounding_box[0], bounding_box[2],network_type = 'bike', retain_all=True, simplify=False)
+    if pull_method == 'bb':
+        G = ox.graph_from_bbox(bounding_box[3],bounding_box[1], bounding_box[0], bounding_box[2],network_type = 'bike',retain_all=True,simplify=False)
+    elif pull_method == 'place':
+        G = ox.graph.graph_from_place(place,network_type = 'bike', retain_all=True, simplify=False)
     
     #Get edge attributes
     edge_attributes = ox.graph_to_gdfs(G, nodes=True)[1]
