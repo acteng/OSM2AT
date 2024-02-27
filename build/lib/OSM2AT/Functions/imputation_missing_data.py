@@ -1,41 +1,41 @@
-import torch
-import torch.nn as nn
-import torch.optim as optim
+# import torch
+# import torch.nn as nn
+# import torch.optim as optim
 #from torch_geometric.nn import GCNConv
-import torch.nn.functional as F
+# import torch.nn.functional as F
 from sklearn.neighbors import KNeighborsClassifier
 import pandas as pd
 import numpy as np
 import tqdm
 
-class GCN(torch.nn.Module):
-    def __init__(self, input_feats, hidden1, num_classes):
-        super().__init__()
-        self.conv1 = GCNConv(input_feats, hidden1)
-        self.conv2 = GCNConv(hidden1, num_classes)
+# class GCN(torch.nn.Module):
+#     def __init__(self, input_feats, hidden1, num_classes):
+#         super().__init__()
+#         self.conv1 = GCNConv(input_feats, hidden1)
+#         self.conv2 = GCNConv(hidden1, num_classes)
 
-    def forward(self, x, edge_index, edge_values = None,with_vals=False):
-        if with_vals:
-            x = self.conv1(x, edge_index, edge_values)
-        else:
-            x = self.conv1(x, edge_index)
-        x = F.relu(x)
-        output = self.conv2(x, edge_index)
+#     def forward(self, x, edge_index, edge_values = None,with_vals=False):
+#         if with_vals:
+#             x = self.conv1(x, edge_index, edge_values)
+#         else:
+#             x = self.conv1(x, edge_index)
+#         x = F.relu(x)
+#         output = self.conv2(x, edge_index)
 
-        return output
+#         return output
     
 
-class Multiclass(nn.Module):
-    def __init__(self, input_size, hidden_size1, output_size):
-        super().__init__()
-        self.hidden = nn.Linear(input_size, hidden_size1)
-        self.act = nn.ReLU()
-        self.output = nn.Linear(hidden_size1, output_size)
+# class Multiclass(nn.Module):
+#     def __init__(self, input_size, hidden_size1, output_size):
+#         super().__init__()
+#         self.hidden = nn.Linear(input_size, hidden_size1)
+#         self.act = nn.ReLU()
+#         self.output = nn.Linear(hidden_size1, output_size)
         
-    def forward(self, x):
-        x = self.act(self.hidden(x))
-        x = self.output(x)
-        return x
+#     def forward(self, x):
+#         x = self.act(self.hidden(x))
+#         x = self.output(x)
+#         return x
     
     
 #%%
@@ -133,49 +133,49 @@ def knn_feats(x_hot,var_exists,target,var_to_impute,k = 3):
 
 #%%
 
-def mlp_impute(y_onehot,x_hot,hidden_layer1,var_exists,var_to_impute,batch_size,n_epochs,num_to_target):
+# def mlp_impute(y_onehot,x_hot,hidden_layer1,var_exists,var_to_impute,batch_size,n_epochs,num_to_target):
 
-    num_classes = y_onehot.shape[1]
-    num_features = x_hot.shape[1]
+#     num_classes = y_onehot.shape[1]
+#     num_features = x_hot.shape[1]
     
-    model = Multiclass(num_features, hidden_layer1, num_classes)
-    print(model)
+#     model = Multiclass(num_features, hidden_layer1, num_classes)
+#     print(model)
     
-    criterion = nn.CrossEntropyLoss()
-    optimizer = optim.Adam(model.parameters(), lr=0.001)
+#     criterion = nn.CrossEntropyLoss()
+#     optimizer = optim.Adam(model.parameters(), lr=0.001)
     
-    x_train_t = torch.tensor(x_hot[var_exists].astype(np.float16), dtype=torch.float32)
-    x_test_t = torch.tensor(x_hot[var_to_impute].astype(np.float16), dtype=torch.float32)
-    y_train_t = torch.tensor(y_onehot.astype(np.float16), dtype=torch.float32)
+#     x_train_t = torch.tensor(x_hot[var_exists].astype(np.float16), dtype=torch.float32)
+#     x_test_t = torch.tensor(x_hot[var_to_impute].astype(np.float16), dtype=torch.float32)
+#     y_train_t = torch.tensor(y_onehot.astype(np.float16), dtype=torch.float32)
     
-    batches_per_epoch = len(x_train_t) // batch_size
+#     batches_per_epoch = len(x_train_t) // batch_size
     
-    losses = []
-    for epoch in range(n_epochs):
-        with tqdm.trange(batches_per_epoch, unit="batch", mininterval=0) as bar:
-            bar.set_description(f"Epoch {epoch}")
-            for i in bar:
-                # take a batch
-                start = i * batch_size
-                X_batch = x_train_t[start:start+batch_size]
-                y_batch = y_train_t[start:start+batch_size]
-                # forward pass
-                y_pred = model(X_batch)
-                loss = criterion(y_pred, y_batch)
-                losses.append(loss.detach().numpy())
-                # backward pass
-                optimizer.zero_grad()
-                loss.backward()
-                # update weights
-                optimizer.step()
+#     losses = []
+#     for epoch in range(n_epochs):
+#         with tqdm.trange(batches_per_epoch, unit="batch", mininterval=0) as bar:
+#             bar.set_description(f"Epoch {epoch}")
+#             for i in bar:
+#                 # take a batch
+#                 start = i * batch_size
+#                 X_batch = x_train_t[start:start+batch_size]
+#                 y_batch = y_train_t[start:start+batch_size]
+#                 # forward pass
+#                 y_pred = model(X_batch)
+#                 loss = criterion(y_pred, y_batch)
+#                 losses.append(loss.detach().numpy())
+#                 # backward pass
+#                 optimizer.zero_grad()
+#                 loss.backward()
+#                 # update weights
+#                 optimizer.step()
     
-    y_pred = model(x_test_t)
+#     y_pred = model(x_test_t)
     
-    predicted = []
-    for i in torch.argmax(y_pred, 1).cpu().detach().numpy():
-        predicted.append(num_to_target[i])
+#     predicted = []
+#     for i in torch.argmax(y_pred, 1).cpu().detach().numpy():
+#         predicted.append(num_to_target[i])
     
-    return np.array(predicted)
+#     return np.array(predicted)
 
 
 #%%
@@ -221,43 +221,43 @@ def get_adj_mx(edge_attributes,G):
 
 #%%
 
-def gnn_impute(x_hot,y_onehot,edge_index,device,hidden_layer1,n_epochs,var_exists,var_to_impute,num_to_target):
+# def gnn_impute(x_hot,y_onehot,edge_index,device,hidden_layer1,n_epochs,var_exists,var_to_impute,num_to_target):
 
-    x_t = torch.tensor(x_hot.astype(np.float16), dtype=torch.float32)
-    y_t = torch.tensor(y_onehot.astype(np.float16), dtype=torch.float32)
+#     x_t = torch.tensor(x_hot.astype(np.float16), dtype=torch.float32)
+#     y_t = torch.tensor(y_onehot.astype(np.float16), dtype=torch.float32)
     
-    edge_index_t = torch.tensor(edge_index).to(device).long()
+#     edge_index_t = torch.tensor(edge_index).to(device).long()
     
-    num_classes = y_onehot.shape[1]
-    num_features = x_hot.shape[1]
+#     num_classes = y_onehot.shape[1]
+#     num_features = x_hot.shape[1]
     
-    gcn = GCN(num_features,hidden_layer1,num_classes).to(device)
-    optimizer_gcn = torch.optim.Adam(gcn.parameters(), lr=0.01, weight_decay=5e-4)
-    criterion = nn.CrossEntropyLoss()
+#     gcn = GCN(num_features,hidden_layer1,num_classes).to(device)
+#     optimizer_gcn = torch.optim.Adam(gcn.parameters(), lr=0.01, weight_decay=5e-4)
+#     criterion = nn.CrossEntropyLoss()
     
-    gcn.train()
+#     gcn.train()
     
-    losses = []
+#     losses = []
     
-    for epoch in range(1, n_epochs + 1):
+#     for epoch in range(1, n_epochs + 1):
         
-        if epoch % 25 == 0:
-            print(epoch)
+#         if epoch % 25 == 0:
+#             print(epoch)
         
-        optimizer_gcn.zero_grad()
-        out = gcn(x_t,edge_index_t,None,with_vals=False)
-        loss = criterion(out[var_exists], y_t[var_exists])
-        losses.append(loss.detach().numpy())
-        loss.backward()
-        optimizer_gcn.step()    
+#         optimizer_gcn.zero_grad()
+#         out = gcn(x_t,edge_index_t,None,with_vals=False)
+#         loss = criterion(out[var_exists], y_t[var_exists])
+#         losses.append(loss.detach().numpy())
+#         loss.backward()
+#         optimizer_gcn.step()    
         
-    out = gcn(x_t,edge_index_t,None,with_vals=False)
+#     out = gcn(x_t,edge_index_t,None,with_vals=False)
     
-    predicted = []
-    for i in out.argmax(dim=1).detach().numpy()[var_to_impute]:
-        predicted.append(num_to_target[i])
+#     predicted = []
+#     for i in out.argmax(dim=1).detach().numpy()[var_to_impute]:
+#         predicted.append(num_to_target[i])
     
-    return np.array(predicted)
+#     return np.array(predicted)
 
 
 #%%

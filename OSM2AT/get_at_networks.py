@@ -1,6 +1,6 @@
-from .Functions.imputation_missing_data import knn_dist_impute,get_impute_masks, feature_learning_train_sets, mode_rule,knn_feats,mlp_impute, ottawa_impute_speed
+from .Functions.imputation_missing_data import knn_dist_impute,get_impute_masks, mode_rule,ottawa_impute_speed
 from .Functions.LTS import lts_ottawa
-from .Functions.self_learning import self_learn
+#from .Functions.self_learning import self_learn
 from .Functions.helper_functions import dedupe_var_replace
 import osmnx as ox
 import csv
@@ -30,7 +30,7 @@ with open (tag_file, 'r') as f:
 utw = ox.settings.useful_tags_way + tags_to_add
 ox.config(use_cache=True, log_console=True, useful_tags_way=utw)
 
-def get_cycle_network(bounding_box,impute_method,mlp_train_params,lts_method,self_learn_k,pull_method,place):
+def get_cycle_network(bounding_box,impute_method,lts_method,pull_method,place):
     
     #Define weight matrices for different users
     weights_beginner = {0:0.1,1:0.2,2:2,3:4,4:10}
@@ -67,22 +67,22 @@ def get_cycle_network(bounding_box,impute_method,mlp_train_params,lts_method,sel
     edge_attributes['maxspeed'] = edge_attributes['maxspeed'].replace('none',np.nan)
     var_exists, var_to_impute = get_impute_masks(tag_to_impute,edge_attributes)
     #Get ML training sets
-    target_to_num, num_to_target, target, y_int, y_onehot, x_hot = feature_learning_train_sets(edge_attributes, tag_to_impute, tags_to_add)
+    #target_to_num, num_to_target, target, y_int, y_onehot, x_hot = feature_learning_train_sets(edge_attributes, tag_to_impute, tags_to_add)
     #Impute missing data
     if impute_method == 'knn-dist':
         print('Imputing data using method - KNN Dist')
         imputed_vals = knn_dist_impute(edge_attributes,var_exists,var_to_impute,tag_to_impute)
-    elif impute_method == 'knn-feats':
-        print('Imputing data using method - KNN Feats')
-        #todo: default value for k
-        imputed_vals = knn_feats(x_hot,var_exists,target,var_to_impute,k = 3)
+    # elif impute_method == 'knn-feats':
+    #     print('Imputing data using method - KNN Feats')
+    #     #todo: default value for k
+    #     imputed_vals = knn_feats(x_hot,var_exists,target,var_to_impute,k = 3)
     elif impute_method == 'mode-rule':
         print('Imputing data using method - Mode Rule')
         imputed_vals = mode_rule(edge_attributes,var_exists,var_to_impute,tag_to_impute)
         print('Data imputed')
-    elif impute_method == 'mlp':
-        print('Imputing data using method - MLP')
-        imputed_vals = mlp_impute(y_onehot,x_hot,mlp_train_params['hidden_layer'],var_exists,var_to_impute,mlp_train_params['batch_size'],mlp_train_params['n_epochs'],num_to_target)
+    # elif impute_method == 'mlp':
+    #     print('Imputing data using method - MLP')
+    #     imputed_vals = mlp_impute(y_onehot,x_hot,mlp_train_params['hidden_layer'],var_exists,var_to_impute,mlp_train_params['batch_size'],mlp_train_params['n_epochs'],num_to_target)
     elif impute_method == 'ottawa':
         print('Imputing data using method - MLP')
         print('WARNING : This method has hardcoded values specific to a UK setting.')
@@ -111,22 +111,22 @@ def get_cycle_network(bounding_box,impute_method,mlp_train_params,lts_method,sel
         #Imputation masks
         var_exists, var_to_impute = get_impute_masks(tag_to_impute,edge_attributes)
         #Get ML training sets
-        target_to_num, num_to_target, target, y_int, y_onehot, x_hot = feature_learning_train_sets(edge_attributes, tag_to_impute, tags_to_add)
+        #target_to_num, num_to_target, target, y_int, y_onehot, x_hot = feature_learning_train_sets(edge_attributes, tag_to_impute, tags_to_add)
         #Impute missing data
         if impute_method == 'knn-dist':
             print('Imputing data using method - KNN Dist')
             imputed_vals = knn_dist_impute(edge_attributes,var_exists,var_to_impute,tag_to_impute)
-        elif impute_method == 'knn-feats':
-            print('Imputing data using method - KNN Feats')
-            #todo: default value for k
-            imputed_vals = knn_feats(x_hot,var_exists,target,var_to_impute,k = 3)
+        # elif impute_method == 'knn-feats':
+        #     print('Imputing data using method - KNN Feats')
+        #     #todo: default value for k
+        #     imputed_vals = knn_feats(x_hot,var_exists,target,var_to_impute,k = 3)
         elif impute_method == 'mode-rule':
             print('Imputing data using method - Mode Rule')
             imputed_vals = mode_rule(edge_attributes,var_exists,var_to_impute,tag_to_impute)
             print('Data imputed')
-        elif impute_method == 'mlp':
-            print('Imputing data using method - MLP')
-            imputed_vals = mlp_impute(y_onehot,x_hot,mlp_train_params['hidden_layer'],var_exists,var_to_impute,mlp_train_params['batch_size'],mlp_train_params['n_epochs'],num_to_target)
+        # elif impute_method == 'mlp':
+        #     print('Imputing data using method - MLP')
+        #     imputed_vals = mlp_impute(y_onehot,x_hot,mlp_train_params['hidden_layer'],var_exists,var_to_impute,mlp_train_params['batch_size'],mlp_train_params['n_epochs'],num_to_target)
         
         if impute_method == 'ottawa':
             edge_attributes.loc[var_to_impute,tag_to_impute] = 2
@@ -148,23 +148,23 @@ def get_cycle_network(bounding_box,impute_method,mlp_train_params,lts_method,sel
         #Imputation masks
         var_exists, var_to_impute = get_impute_masks(tag_to_impute,edge_attributes)
         #Get ML training sets
-        target_to_num, num_to_target, target, y_int, y_onehot, x_hot = feature_learning_train_sets(edge_attributes, tag_to_impute, tags_to_add)
+        #target_to_num, num_to_target, target, y_int, y_onehot, x_hot = feature_learning_train_sets(edge_attributes, tag_to_impute, tags_to_add)
 
         #Impute missing data
         if impute_method == 'knn-dist':
             print('Imputing data using method - KNN Dist')
             imputed_vals = knn_dist_impute(edge_attributes,var_exists,var_to_impute,tag_to_impute)
-        elif impute_method == 'knn-feats':
-            print('Imputing data using method - KNN Feats')
-            #todo: default value for k
-            imputed_vals = knn_feats(x_hot,var_exists,target,var_to_impute,k = 3)
+        # elif impute_method == 'knn-feats':
+        #     print('Imputing data using method - KNN Feats')
+        #     #todo: default value for k
+        #     imputed_vals = knn_feats(x_hot,var_exists,target,var_to_impute,k = 3)
         elif impute_method == 'mode-rule':
             print('Imputing data using method - mode rule')
             imputed_vals = mode_rule(edge_attributes,var_exists,var_to_impute,tag_to_impute)
             print('Data imputed')
-        elif impute_method == 'mlp':
-            print('Imputing data using method - MLP')
-            imputed_vals = mlp_impute(y_onehot,x_hot,mlp_train_params['hidden_layer'],var_exists,var_to_impute,mlp_train_params['batch_size'],mlp_train_params['n_epochs'],num_to_target)
+        # elif impute_method == 'mlp':
+        #     print('Imputing data using method - MLP')
+        #     imputed_vals = mlp_impute(y_onehot,x_hot,mlp_train_params['hidden_layer'],var_exists,var_to_impute,mlp_train_params['batch_size'],mlp_train_params['n_epochs'],num_to_target)
 
         if impute_method != 'ottawa':
             edge_attributes.loc[var_to_impute,tag_to_impute] = imputed_vals
@@ -188,12 +188,12 @@ def get_cycle_network(bounding_box,impute_method,mlp_train_params,lts_method,sel
         lts = lts_ottawa(edge_attributes)
         edge_attributes['LTS'] = lts['LTS_ottawa']
         edge_attributes = pd.concat([edge_attributes, pd.get_dummies(lts['LTS_ottawa'])], axis=1)
-    elif lts_method == 'self-learn':
-        print('Calculating LTS using Self-Learning Approach')
-        print('WARNING : this approach is under development, please check your results carefully')
-        lts = self_learn(edge_attributes,self_learn_k)
-        edge_attributes['LTS'] = lts['cluster']
-        edge_attributes = pd.concat([edge_attributes, pd.get_dummies(lts['cluster'])], axis=1)
+    # elif lts_method == 'self-learn':
+    #     print('Calculating LTS using Self-Learning Approach')
+    #     print('WARNING : this approach is under development, please check your results carefully')
+    #     lts = self_learn(edge_attributes,self_learn_k)
+    #     edge_attributes['LTS'] = lts['cluster']
+    #     edge_attributes = pd.concat([edge_attributes, pd.get_dummies(lts['cluster'])], axis=1)
     
     for col in [0,1,2,3,4]:
         if col not in edge_attributes.columns:
@@ -223,7 +223,7 @@ def get_cycle_network(bounding_box,impute_method,mlp_train_params,lts_method,sel
     return G, edge_attributes
 
 
-def measure_LTS_from_network(G,impute_method,mlp_train_params,lts_method,self_learn_k):
+def measure_LTS_from_network(G,impute_method,lts_method):
     
     #Get edge attributes
     edge_attributes = ox.graph_to_gdfs(G, nodes=True)[1]
@@ -244,22 +244,22 @@ def measure_LTS_from_network(G,impute_method,mlp_train_params,lts_method,self_le
     edge_attributes['maxspeed'] = edge_attributes['maxspeed'].replace('none',np.nan)
     var_exists, var_to_impute = get_impute_masks(tag_to_impute,edge_attributes)
     #Get ML training sets
-    target_to_num, num_to_target, target, y_int, y_onehot, x_hot = feature_learning_train_sets(edge_attributes, tag_to_impute, tags_to_add)
+    # target_to_num, num_to_target, target, y_int, y_onehot, x_hot = feature_learning_train_sets(edge_attributes, tag_to_impute, tags_to_add)
     #Impute missing data
     if impute_method == 'knn-dist':
         print('Imputing data using method - KNN Dist')
         imputed_vals = knn_dist_impute(edge_attributes,var_exists,var_to_impute,tag_to_impute)
-    elif impute_method == 'knn-feats':
-        print('Imputing data using method - KNN Feats')
-        #todo: default value for k
-        imputed_vals = knn_feats(x_hot,var_exists,target,var_to_impute,k = 3)
+    # elif impute_method == 'knn-feats':
+    #     print('Imputing data using method - KNN Feats')
+    #     #todo: default value for k
+    #     imputed_vals = knn_feats(x_hot,var_exists,target,var_to_impute,k = 3)
     elif impute_method == 'mode-rule':
         print('Imputing data using method - Mode Rule')
         imputed_vals = mode_rule(edge_attributes,var_exists,var_to_impute,tag_to_impute)
         print('Data imputed')
-    elif impute_method == 'mlp':
-        print('Imputing data using method - MLP')
-        imputed_vals = mlp_impute(y_onehot,x_hot,mlp_train_params['hidden_layer'],var_exists,var_to_impute,mlp_train_params['batch_size'],mlp_train_params['n_epochs'],num_to_target)
+    # elif impute_method == 'mlp':
+    #     print('Imputing data using method - MLP')
+    #     imputed_vals = mlp_impute(y_onehot,x_hot,mlp_train_params['hidden_layer'],var_exists,var_to_impute,mlp_train_params['batch_size'],mlp_train_params['n_epochs'],num_to_target)
     elif impute_method == 'ottawa':
         print('Imputing data using method - MLP')
         print('WARNING : This method has hardcoded values specific to a UK setting.')
@@ -288,22 +288,22 @@ def measure_LTS_from_network(G,impute_method,mlp_train_params,lts_method,self_le
         #Imputation masks
         var_exists, var_to_impute = get_impute_masks(tag_to_impute,edge_attributes)
         #Get ML training sets
-        target_to_num, num_to_target, target, y_int, y_onehot, x_hot = feature_learning_train_sets(edge_attributes, tag_to_impute, tags_to_add)
+        # target_to_num, num_to_target, target, y_int, y_onehot, x_hot = feature_learning_train_sets(edge_attributes, tag_to_impute, tags_to_add)
         #Impute missing data
         if impute_method == 'knn-dist':
             print('Imputing data using method - KNN Dist')
             imputed_vals = knn_dist_impute(edge_attributes,var_exists,var_to_impute,tag_to_impute)
-        elif impute_method == 'knn-feats':
-            print('Imputing data using method - KNN Feats')
-            #todo: default value for k
-            imputed_vals = knn_feats(x_hot,var_exists,target,var_to_impute,k = 3)
+        # elif impute_method == 'knn-feats':
+        #     print('Imputing data using method - KNN Feats')
+        #     #todo: default value for k
+        #     imputed_vals = knn_feats(x_hot,var_exists,target,var_to_impute,k = 3)
         elif impute_method == 'mode-rule':
             print('Imputing data using method - Mode Rule')
             imputed_vals = mode_rule(edge_attributes,var_exists,var_to_impute,tag_to_impute)
             print('Data imputed')
-        elif impute_method == 'mlp':
-            print('Imputing data using method - MLP')
-            imputed_vals = mlp_impute(y_onehot,x_hot,mlp_train_params['hidden_layer'],var_exists,var_to_impute,mlp_train_params['batch_size'],mlp_train_params['n_epochs'],num_to_target)
+        # elif impute_method == 'mlp':
+        #     print('Imputing data using method - MLP')
+        #     imputed_vals = mlp_impute(y_onehot,x_hot,mlp_train_params['hidden_layer'],var_exists,var_to_impute,mlp_train_params['batch_size'],mlp_train_params['n_epochs'],num_to_target)
         
         if impute_method == 'ottawa':
             edge_attributes.loc[var_to_impute,tag_to_impute] = 2
@@ -325,23 +325,23 @@ def measure_LTS_from_network(G,impute_method,mlp_train_params,lts_method,self_le
         #Imputation masks
         var_exists, var_to_impute = get_impute_masks(tag_to_impute,edge_attributes)
         #Get ML training sets
-        target_to_num, num_to_target, target, y_int, y_onehot, x_hot = feature_learning_train_sets(edge_attributes, tag_to_impute, tags_to_add)
+        # target_to_num, num_to_target, target, y_int, y_onehot, x_hot = feature_learning_train_sets(edge_attributes, tag_to_impute, tags_to_add)
 
         #Impute missing data
         if impute_method == 'knn-dist':
             print('Imputing data using method - KNN Dist')
             imputed_vals = knn_dist_impute(edge_attributes,var_exists,var_to_impute,tag_to_impute)
-        elif impute_method == 'knn-feats':
-            print('Imputing data using method - KNN Feats')
-            #todo: default value for k
-            imputed_vals = knn_feats(x_hot,var_exists,target,var_to_impute,k = 3)
+        # elif impute_method == 'knn-feats':
+        #     print('Imputing data using method - KNN Feats')
+        #     #todo: default value for k
+        #     imputed_vals = knn_feats(x_hot,var_exists,target,var_to_impute,k = 3)
         elif impute_method == 'mode-rule':
             print('Imputing data using method - mode rule')
             imputed_vals = mode_rule(edge_attributes,var_exists,var_to_impute,tag_to_impute)
             print('Data imputed')
-        elif impute_method == 'mlp':
-            print('Imputing data using method - MLP')
-            imputed_vals = mlp_impute(y_onehot,x_hot,mlp_train_params['hidden_layer'],var_exists,var_to_impute,mlp_train_params['batch_size'],mlp_train_params['n_epochs'],num_to_target)
+        # elif impute_method == 'mlp':
+        #     print('Imputing data using method - MLP')
+        #     imputed_vals = mlp_impute(y_onehot,x_hot,mlp_train_params['hidden_layer'],var_exists,var_to_impute,mlp_train_params['batch_size'],mlp_train_params['n_epochs'],num_to_target)
 
         if impute_method != 'ottawa':
             edge_attributes.loc[var_to_impute,tag_to_impute] = imputed_vals
@@ -367,12 +367,12 @@ def measure_LTS_from_network(G,impute_method,mlp_train_params,lts_method,self_le
         lts = lts_ottawa(edge_attributes)
         edge_attributes['LTS'] = lts['LTS_ottawa']
         edge_attributes = pd.concat([edge_attributes, pd.get_dummies(lts['LTS_ottawa'])], axis=1)
-    elif lts_method == 'self-learn':
-        print('Calculating LTS using Self-Learning Approach')
-        print('WARNING : this approach is under development, please check your results carefully')
-        lts = self_learn(edge_attributes,self_learn_k)
-        edge_attributes['LTS'] = lts['cluster']
-        edge_attributes = pd.concat([edge_attributes, pd.get_dummies(lts['cluster'])], axis=1)
+    # elif lts_method == 'self-learn':
+    #     print('Calculating LTS using Self-Learning Approach')
+    #     print('WARNING : this approach is under development, please check your results carefully')
+    #     lts = self_learn(edge_attributes,self_learn_k)
+    #     edge_attributes['LTS'] = lts['cluster']
+    #     edge_attributes = pd.concat([edge_attributes, pd.get_dummies(lts['cluster'])], axis=1)
     
     for col in [0,1,2,3,4]:
         if col not in edge_attributes.columns:
