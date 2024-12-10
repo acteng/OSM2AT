@@ -1,2 +1,3 @@
 include OSM2AT/Functions/*
-include OSM2AT/tags.txt
+include OSM2AT/cycle_tags.txt
+include OSM2AT/walking_tags.txt

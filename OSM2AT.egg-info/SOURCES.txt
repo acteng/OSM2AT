@@ -2,8 +2,9 @@ MANIFEST.in
 README.md
 setup.py
 OSM2AT/__init__.py
+OSM2AT/cycle_tags.txt
 OSM2AT/get_at_networks.py
-OSM2AT/tags.txt
+OSM2AT/walking_tags.txt
 OSM2AT.egg-info/PKG-INFO
 OSM2AT.egg-info/SOURCES.txt
 OSM2AT.egg-info/dependency_links.txt

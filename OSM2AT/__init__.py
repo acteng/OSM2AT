@@ -1,2 +1,3 @@
 from .get_at_networks import get_cycle_network
+from .get_at_networks import get_foot_network
 from .get_at_networks import measure_LTS_from_network
